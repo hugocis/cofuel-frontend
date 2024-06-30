@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode'; // Correct import
 import styled, { keyframes } from 'styled-components';
 
 const gradientBackground = keyframes`
@@ -17,13 +17,13 @@ const Container = styled.div`
   background: linear-gradient(135deg, #66ffcc, #ffcc66);
   background-size: 200% 200%;
   animation: ${gradientBackground} 10s ease infinite;
-  padding: 0 20px 80px 20px; 
+  padding: 0 20px 80px 20px;
   min-height: 50vh;
   justify-content: center;
 `;
 
 const Spacer = styled.div`
-  height: 10vh; 
+  height: 10vh;
 `;
 
 const Title = styled.h1`
@@ -126,8 +126,14 @@ const Login = () => {
       const token = response.data.token;
       const decodedToken = jwtDecode(token);
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('username', decodedToken.username);
+      const user = {
+        token,
+        id: decodedToken.id,
+        username: decodedToken.username // Ensure username is retrieved
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+      console.log('Stored user data in localStorage:', user);
 
       setLoading(false);
       navigate('/planning');
@@ -152,7 +158,7 @@ const Login = () => {
           disabled={loading}
         />
         <Input
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

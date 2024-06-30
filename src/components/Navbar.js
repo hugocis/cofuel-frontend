@@ -127,6 +127,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
+    console.log('userData from localStorage:', userData);
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
