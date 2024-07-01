@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import styled, { keyframes } from 'styled-components';
 
 const gradientBackground = keyframes`
@@ -103,23 +102,21 @@ const Register = () => {
         password,
       });
 
-      const token = response.data.token;
-      const decodedToken = jwtDecode(token);
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('username', decodedToken.username);
-
       setLoading(false);
-      navigate('/planning');
+      if (response.status === 201) {
+        navigate('/planning');
+      } else {
+        setError('Error registering user');
+      }
     } catch (err) {
       setLoading(false);
-      setError('Error registering user');
+      setError(err.response?.data?.message || 'Error registering user');
     }
   };
 
   return (
     <Container>
-    <Spacer />
+      <Spacer />
       <Title>Register</Title>
       <Form onSubmit={handleRegister}>
         {error && <ErrorMessage>{error}</ErrorMessage>}
