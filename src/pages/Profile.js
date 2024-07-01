@@ -3,13 +3,19 @@ import axios from 'axios';
 import styled from 'styled-components';
 
 const Profile = () => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({ vehicles: [] });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    // Add other fields as needed
+  });
+
+  const [vehicleData, setVehicleData] = useState({
+    make: '',
+    model: '',
+    year: '',
+    licensePlate: '',
   });
 
   useEffect(() => {
@@ -17,14 +23,13 @@ const Profile = () => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       if (storedUser) {
         try {
-          const response = await axios.get('/api/users/me', {
-            headers: { Authorization: `Bearer ${storedUser.token}` }
+          const response = await axios.get('https://cofuel-backend-63452a272e1b.herokuapp.com/api/users/me', {
+            headers: { 'x-access-token': storedUser.token }
           });
           setUser(response.data);
           setFormData({
             username: response.data.username,
             email: response.data.email,
-            // Set other fields as needed
           });
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -42,12 +47,17 @@ const Profile = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleVehicleChange = (e) => {
+    const { name, value } = e.target;
+    setVehicleData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const storedUser = JSON.parse(localStorage.getItem('user'));
     try {
-      const response = await axios.put('/api/users/me', formData, {
-        headers: { Authorization: `Bearer ${storedUser.token}` }
+      const response = await axios.put('https://cofuel-backend-63452a272e1b.herokuapp.com/api/users/me', formData, {
+        headers: { 'x-access-token': storedUser.token }
       });
       setUser(response.data);
       setEditing(false);
@@ -55,6 +65,30 @@ const Profile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile');
+    }
+  };
+
+  const handleAddVehicle = async (e) => {
+    e.preventDefault();
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    try {
+      const response = await axios.post('https://cofuel-backend-63452a272e1b.herokuapp.com/api/vehicles', 
+      {
+        ...vehicleData, 
+        userId: user.id 
+      },
+      {
+        headers: { 'x-access-token': storedUser.token }
+      });
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        vehicles: [...(prevUser.vehicles || []), response.data]
+      }));
+      alert('Vehicle added successfully!');
+    } catch (error) {
+      console.error('Error adding vehicle:', error);
+      alert('Failed to add vehicle');
     }
   };
 
@@ -87,7 +121,6 @@ const Profile = () => {
               onChange={handleChange}
             />
           </InputWrapper>
-          {/* Add other fields as needed */}
           <ButtonWrapper>
             <Button type="submit">Save</Button>
             <Button type="button" onClick={() => setEditing(false)}>Cancel</Button>
@@ -97,12 +130,59 @@ const Profile = () => {
         <ProfileDetails>
           <p><strong>Username:</strong> {user.username}</p>
           <p><strong>Email:</strong> {user.email}</p>
-          {/* Display other fields as needed */}
           <ButtonWrapper>
             <Button onClick={() => setEditing(true)}>Edit Profile</Button>
           </ButtonWrapper>
         </ProfileDetails>
       )}
+      <VehicleContainer>
+        <h2>Add Vehicle</h2>
+        <form onSubmit={handleAddVehicle}>
+          <InputWrapper>
+            <Label htmlFor="make">Make:</Label>
+            <Input
+              id="make"
+              name="make"
+              type="text"
+              value={vehicleData.make}
+              onChange={handleVehicleChange}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Label htmlFor="model">Model:</Label>
+            <Input
+              id="model"
+              name="model"
+              type="text"
+              value={vehicleData.model}
+              onChange={handleVehicleChange}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Label htmlFor="year">Year:</Label>
+            <Input
+              id="year"
+              name="year"
+              type="text"
+              value={vehicleData.year}
+              onChange={handleVehicleChange}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Label htmlFor="licensePlate">License Plate:</Label>
+            <Input
+              id="licensePlate"
+              name="licensePlate"
+              type="text"
+              value={vehicleData.licensePlate}
+              onChange={handleVehicleChange}
+            />
+          </InputWrapper>
+          <ButtonWrapper>
+            <Button type="submit">Add Vehicle</Button>
+          </ButtonWrapper>
+        </form>
+      </VehicleContainer>
     </ProfileContainer>
   );
 };
@@ -122,6 +202,11 @@ const ProfileContainer = styled.div`
 
 const ProfileDetails = styled.div`
   text-align: left;
+`;
+
+const VehicleContainer = styled.div`
+  margin-top: 20px;
+  width: 100%;
 `;
 
 const InputWrapper = styled.div`

@@ -13,6 +13,8 @@ const Planning = () => {
   const [legs, setLegs] = useState([]);
   const [otherUsers, setOtherUsers] = useState([]);
   const [tripDetails, setTripDetails] = useState(null);
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -28,6 +30,17 @@ const Planning = () => {
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
+        }
+
+        try {
+          const vehiclesResponse = await axios.get(`/api/vehicles/${storedUser.id}`, {
+            headers: { Authorization: `Bearer ${storedUser.token}` }
+          });
+          if (vehiclesResponse.data) {
+            setVehicles(vehiclesResponse.data);
+          }
+        } catch (error) {
+          console.error('Error fetching vehicles:', error);
         }
       }
 
@@ -127,7 +140,7 @@ const Planning = () => {
                 const totalDuration = route.legs.reduce((acc, leg) => acc + leg.duration.value, 0) / 60;
                 setDistance(totalDistance.toFixed(2) + ' km');
                 setDuration(totalDuration.toFixed(2) + ' min');
-                setTripDetails({ origin, destination, waypoints: waypts, distance: totalDistance, duration: totalDuration });
+                setTripDetails({ origin, destination, waypoints: waypts, distance: totalDistance, duration: totalDuration, vehicleId: selectedVehicleId });
               } else {
                 console.error('Error fetching directions', result);
               }
@@ -187,7 +200,7 @@ const Planning = () => {
     } else {
       handleScriptLoad();
     }
-  }, [avatarUrl, waypoints, otherUsers]);
+  }, [avatarUrl, waypoints, otherUsers, selectedVehicleId]);
 
   const addWaypoint = () => {
     setWaypoints([...waypoints, { id: waypoints.length, location: '' }]);
@@ -243,17 +256,29 @@ const Planning = () => {
       return;
     }
   
+    const token = storedUser.token;
+    if (!token) {
+      console.error('No token provided');
+      return;
+    }
+  
+    console.log('Token:', token);
+    console.log('Trip Details:', tripDetails);
+  
     try {
-      const response = await axios.post('/api/trips', {
+      const response = await axios.post('https://cofuel-backend-63452a272e1b.herokuapp.com/api/trips', {
         userId: storedUser.id,
-        vehicleId: tripDetails.vehicleId, // Add appropriate vehicleId if available
+        vehicleId: selectedVehicleId,
         startLocation: tripDetails.origin,
         endLocation: tripDetails.destination,
-        startTime: tripDetails.startTime, // Add appropriate startTime if available
-        endTime: tripDetails.endTime, // Add appropriate endTime if available
-        cost: tripDetails.cost // Add appropriate cost if available
+        startTime: tripDetails.startTime || new Date().toISOString(),
+        endTime: tripDetails.endTime || new Date().toISOString(),
+        cost: tripDetails.cost || 0
       }, {
-        headers: { Authorization: `Bearer ${storedUser.token}` }
+        headers: { 
+          'x-access-token': token,
+          'Content-Type': 'application/json'
+        }
       });
       console.log('Trip published successfully:', response.data);
       alert('Trip published successfully!');
@@ -263,7 +288,6 @@ const Planning = () => {
     }
   };
   
-
   return (
     <Wrapper>
       <ContentContainer>
@@ -305,6 +329,27 @@ const Planning = () => {
                 <LocationButton onClick={() => setCurrentLocation('destination')}>📍</LocationButton>
               </InputGroup>
             </InputWrapper>
+            {vehicles.length > 0 ? (
+              <InputWrapper>
+                <Label htmlFor="vehicle">Select Vehicle:</Label>
+                <select
+                  id="vehicle"
+                  value={selectedVehicleId}
+                  onChange={(e) => setSelectedVehicleId(e.target.value)}
+                >
+                  <option value="">Select a vehicle</option>
+                  {vehicles.map(vehicle => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.make} {vehicle.model} ({vehicle.license_plate})
+                    </option>
+                  ))}
+                </select>
+              </InputWrapper>
+            ) : (
+              <Instructions>
+                No vehicles found. Please add a vehicle in your profile page.
+              </Instructions>
+            )}
           </InputsWrapper>
           <ButtonWrapper>
             <Button onClick={addWaypoint}>Add Stop</Button>
@@ -339,8 +384,12 @@ const Planning = () => {
               <strong>Direct Duration (no stops):</strong> {directDuration}
             </DirectInfoItem>
           </DirectInfoContainer>
-          {tripDetails && (
+          {tripDetails && selectedVehicleId ? (
             <Button onClick={publishTrip}>Publish Trip</Button>
+          ) : (
+            <Instructions>
+              Please select a vehicle before publishing the trip.
+            </Instructions>
           )}
         </>
       ) : (
