@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../utils/auth';
 import styled, { keyframes } from 'styled-components';
+import { jwtDecode } from 'jwt-decode';
 
 const gradientBackground = keyframes`
   0% { background-position: 0% 50%; }
@@ -88,6 +90,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -100,17 +103,35 @@ const Register = () => {
         username,
         email,
         password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       setLoading(false);
       if (response.status === 201) {
+        const token = response.data.token;
+        localStorage.setItem('token', token);
+        setUser(jwtDecode(token));
         navigate('/planning');
       } else {
         setError('Error registering user');
       }
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || 'Error registering user');
+      console.error('Error response:', err);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado que
+        // está fuera del rango de 2xx
+        setError(err.response.data.message || 'Error registering user');
+      } else if (err.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        setError('No response received from server');
+      } else {
+        // Algo pasó al configurar la solicitud que desencadenó un error
+        setError('Error in setting up request');
+      }
     }
   };
 

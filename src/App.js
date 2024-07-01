@@ -15,6 +15,8 @@ import Trips from './pages/Trips';
 import styled from 'styled-components'; 
 import './styles/CommonStyles.css';
 import './styles/CommonStyles.js';
+import { AuthProvider } from './utils/auth'; // Import the AuthProvider
+import PrivateRoute from './PrivateRoute'; // Import the PrivateRoute component
 
 const AppContainer = styled.div`
   display: flex;
@@ -31,26 +33,28 @@ const Content = styled.div`
 
 const App = () => {
   return (
-    <Router>
-      <AppContainer>
-        <Navbar />
-        <Content>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/about-cofuel" element={<AboutCoFuel />} />
-            <Route path="/links" element={<Links />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/planning" element={<Planning />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/trip-history" element={<TripHistory />} />
-            <Route path="/trips" element={<Trips />} />
-          </Routes>
-        </Content>
-        <Footer />
-      </AppContainer>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContainer>
+          <Navbar />
+          <Content>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/about-cofuel" element={<AboutCoFuel />} />
+              <Route path="/links" element={<Links />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/planning" element={<PrivateRoute element={<Planning />} />} /> {/* Use PrivateRoute for protected routes */}
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} /> {/* Use PrivateRoute for protected routes */}
+              <Route path="/trip-history" element={<PrivateRoute element={<TripHistory />} />} /> {/* Use PrivateRoute for protected routes */}
+              <Route path="/trips" element={<PrivateRoute element={<Trips />} />} /> {/* Use PrivateRoute for protected routes */}
+            </Routes>
+          </Content>
+          <Footer />
+        </AppContainer>
+      </Router>
+    </AuthProvider>
   );
 };
 

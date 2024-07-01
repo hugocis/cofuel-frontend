@@ -1,4 +1,3 @@
-// src/utils/auth.js
 import React, { createContext, useContext, useState } from 'react';
 import api from './api';
 import { jwtDecode } from 'jwt-decode';
@@ -26,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
