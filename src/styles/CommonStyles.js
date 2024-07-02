@@ -16,7 +16,7 @@ export const GradientContainer = styled.div`
   background: linear-gradient(135deg, #66ffcc, #ffcc66);
   background-size: 200% 200%;
   animation: ${gradientBackground} 10s ease infinite;
-  min-height: 100vh;
+  min-height: 100vh; // Asegúrate de que el contenedor ocupe al menos el 100% de la altura de la ventana
   padding: 20px;
   text-align: center;
 `;
@@ -72,4 +72,3 @@ export const Input = styled.input`
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   font-size: 16px;
 `;
-

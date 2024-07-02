@@ -56,22 +56,22 @@ const AboutCoFuel = () => {
           Carpooling has been increasing with time. As shown in the web statistical site Statista, the number of carpooling vehicles has increased significantly in the past years, and it doesn’t seem to stop. This shift reflects a global move towards sustainability, with individuals seeking to save money and reduce their environmental footprint. However, fuel cost calculations often remain a sticky point, creating friction and hindering wider carpool adoption.
         </Text>
         <Figure>
-          <img src="path-to-your-image" alt="Carpooling statistics" />
+          <img src={require('../assets/images_AboutCoFuel/CarpoolingStatistics.png')} alt="Carpooling statistics" />
           <figcaption>Figure 1 - Statistics Carpooling</figcaption>
         </Figure>
         <Text>
           After carefully evaluating existing solutions, we've identified some notable applications that do similar or related things to our solution. Blablacar or SharingCar are mobile apps that help people travel to places sharing the same vehicle. This is great but their fuel expenses are not well managed. In a normal carpooling experience, the owner of a vehicle creates a trip proposal and people around must accept the price the main user is requesting. This is not efficient.
         </Text>
         <Figure>
-          <img src="path-to-your-image" alt="Splitwise app" />
+          <img src={require('../assets/images_AboutCoFuel/Splitwise.png')} alt="Splitwise app" />
           <figcaption>Figure 2 – Splitwise</figcaption>
         </Figure>
         <Figure>
-          <img src="path-to-your-image" alt="BlaBlaCar app" />
+          <img src={require('../assets/images_AboutCoFuel/BlaBlaCar.png')} alt="BlaBlaCar app" />
           <figcaption>Figure 3 – BlaBlaCar</figcaption>
         </Figure>
         <Figure>
-          <img src="path-to-your-image" alt="Fuelio app" />
+          <img src={require('../assets/images_AboutCoFuel/Fuelio.png')} alt="Fuelio app" />
           <figcaption>Figure 4 – Fuelio</figcaption>
         </Figure>
       </Section>

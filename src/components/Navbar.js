@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaHome, FaMap, FaInfoCircle, FaLink, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaMap, FaInfoCircle, FaLink, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaRoad } from 'react-icons/fa';
 import { slide as Menu } from 'react-burger-menu';
 import { useMediaQuery } from 'react-responsive';
 import axios from 'axios';
 import logo from '../assets/logo.png';
 import '../styles/Navbar.css';
+import { debounce } from 'lodash';
 
 const Nav = styled.nav`
   display: flex;
@@ -18,7 +19,7 @@ const Nav = styled.nav`
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: padding 0.3s, background 0.3s, box-shadow 0.3s;
+  transition: all 0.5s ease;
   font-size: ${({ isScrolled }) => (isScrolled ? '0.9rem' : '1rem')};
 `;
 
@@ -111,13 +112,13 @@ const Navbar = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => {
       if (window.scrollY > 50) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
-    };
+    }, 50);
 
     window.addEventListener('scroll', handleScroll);
     return () => {
@@ -165,10 +166,16 @@ const Navbar = () => {
       {!isMobile && (
         <NavLinks>
           {user ? (
-            <NavLink to="/planning" className={location.pathname === '/planning' ? 'active' : ''}>
-              <FaMap />
-              Planning
-            </NavLink>
+            <>
+              <NavLink to="/planning" className={location.pathname === '/planning' ? 'active' : ''}>
+                <FaMap />
+                Planning
+              </NavLink>
+              <NavLink to="/trips" className={location.pathname === '/trips' ? 'active' : ''}>
+                <FaRoad />
+                Trips
+              </NavLink>
+            </>
           ) : (
             <NavLink to="/" className={location.pathname === '/' ? 'active' : ''}>
               <FaHome />
@@ -192,10 +199,16 @@ const Navbar = () => {
       <BurgerMenu>
         <Menu right>
           {user ? (
-            <NavLink to="/planning" className={location.pathname === '/planning' ? 'active' : ''}>
-              <FaMap />
-              Planning
-            </NavLink>
+            <>
+              <NavLink to="/planning" className={location.pathname === '/planning' ? 'active' : ''}>
+                <FaMap />
+                Planning
+              </NavLink>
+              <NavLink to="/trips" className={location.pathname === '/trips' ? 'active' : ''}>
+                <FaRoad />
+                Trips
+              </NavLink>
+            </>
           ) : (
             <NavLink to="/" className={location.pathname === '/' ? 'active' : ''}>
               <FaHome />

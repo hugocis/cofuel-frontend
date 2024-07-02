@@ -15,8 +15,8 @@ import Trips from './pages/Trips';
 import styled from 'styled-components'; 
 import './styles/CommonStyles.css';
 import './styles/CommonStyles.js';
-import { AuthProvider } from './utils/auth'; // Import the AuthProvider
-import PrivateRoute from './PrivateRoute'; // Import the PrivateRoute component
+import { AuthProvider } from './utils/auth';
+import PrivateRoute from './PrivateRoute';
 
 const AppContainer = styled.div`
   display: flex;
@@ -45,10 +45,10 @@ const App = () => {
               <Route path="/links" element={<Links />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/planning" element={<PrivateRoute element={<Planning />} />} /> {/* Use PrivateRoute for protected routes */}
-              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} /> {/* Use PrivateRoute for protected routes */}
-              <Route path="/trip-history" element={<PrivateRoute element={<TripHistory />} />} /> {/* Use PrivateRoute for protected routes */}
-              <Route path="/trips" element={<PrivateRoute element={<Trips />} />} /> {/* Use PrivateRoute for protected routes */}
+              <Route path="/planning" element={<PrivateRoute element={<Planning />} />} />
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              <Route path="/trip-history" element={<PrivateRoute element={<TripHistory />} />} />
+              <Route path="/trips" element={<PrivateRoute element={<Trips />} />} />
             </Routes>
           </Content>
           <Footer />

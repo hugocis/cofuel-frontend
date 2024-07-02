@@ -1,7 +1,7 @@
 import React from 'react';
 import { GradientContainer, Title } from '../styles/CommonStyles';
 import styled from 'styled-components';
-import { FaExternalLinkAlt, FaGithub } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaCloud, FaCloudUploadAlt } from 'react-icons/fa';
 
 const LinksContainer = styled.main`
   flex: 1;
@@ -16,6 +16,9 @@ const LinkList = styled.ul`
   padding: 0;
   width: 80%;
   max-width: 600px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 `;
 
 const LinkItem = styled.li`
@@ -65,16 +68,28 @@ const Links = () => {
         <Title>Useful Links</Title>
         <LinkList>
           <LinkItem>
-            <a href="https://vercel.com/hugocis-projects/co-fuel" target="_blank" rel="noopener noreferrer">
-              Vercel Deployment <FaExternalLinkAlt />
+            <a href="https://dashboard.heroku.com/apps/cofuel-backend" target="_blank" rel="noopener noreferrer">
+              Heroku Dashboard <FaCloud />
             </a>
-            <p>Visit the CoFuel project deployed on Vercel.</p>
+            <p>Access the CoFuel backend on Heroku.</p>
           </LinkItem>
           <LinkItem>
-            <a href="https://github.com/hugocis/CoFuel" target="_blank" rel="noopener noreferrer">
-              GitHub Repository <FaGithub />
+            <a href="https://cofuel-backend-63452a272e1b.herokuapp.com/" target="_blank" rel="noopener noreferrer">
+              Heroku Deployment <FaCloudUploadAlt />
             </a>
-            <p>Explore the source code of the CoFuel project on GitHub.</p>
+            <p>Visit the CoFuel backend deployed on Heroku.</p>
+          </LinkItem>
+          <LinkItem>
+            <a href="https://vercel.com/hugocis-projects/cofuel-frontend" target="_blank" rel="noopener noreferrer">
+              Vercel Frontend Deployment <FaExternalLinkAlt />
+            </a>
+            <p>Visit the CoFuel frontend deployed on Vercel.</p>
+          </LinkItem>
+          <LinkItem>
+            <a href="https://cofuel.vercel.app/" target="_blank" rel="noopener noreferrer">
+              CoFuel Application <FaExternalLinkAlt />
+            </a>
+            <p>Explore the CoFuel application.</p>
           </LinkItem>
         </LinkList>
       </LinksContainer>

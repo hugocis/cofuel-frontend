@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 
 const Planning = () => {
@@ -19,10 +19,10 @@ const Planning = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      if (storedUser) {
+      if (storedUser && storedUser.token) {
         try {
-          const response = await axios.get('/api/users/me', {
-            headers: { Authorization: `Bearer ${storedUser.token}` }
+          const response = await axios.get('https://cofuel-backend-63452a272e1b.herokuapp.com/api/users/me', {
+            headers: { 'x-access-token': storedUser.token }
           });
           const { data } = response;
           if (data) {
@@ -33,11 +33,12 @@ const Planning = () => {
         }
 
         try {
-          const vehiclesResponse = await axios.get(`/api/vehicles/${storedUser.id}`, {
-            headers: { Authorization: `Bearer ${storedUser.token}` }
+          const vehiclesResponse = await axios.get(`https://cofuel-backend-63452a272e1b.herokuapp.com/api/vehicles/${storedUser.id}`, {
+            headers: { 'x-access-token': storedUser.token }
           });
           if (vehiclesResponse.data) {
             setVehicles(vehiclesResponse.data);
+            console.log('Vehicles:', vehiclesResponse.data);
           }
         } catch (error) {
           console.error('Error fetching vehicles:', error);
@@ -45,7 +46,7 @@ const Planning = () => {
       }
 
       try {
-        const usersResponse = await axios.get('/api/users');
+        const usersResponse = await axios.get('https://cofuel-backend-63452a272e1b.herokuapp.com/api/users');
         if (usersResponse.data) {
           setOtherUsers(usersResponse.data);
         }
@@ -249,6 +250,20 @@ const Planning = () => {
     }
   };
 
+  const geocodeAddress = async (address) => {
+    return new Promise((resolve, reject) => {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK') {
+          const { lat, lng } = results[0].geometry.location;
+          resolve({ lat: lat(), lng: lng() });
+        } else {
+          reject('Geocode was not successful for the following reason: ' + status);
+        }
+      });
+    });
+  };
+
   const publishTrip = async () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (!storedUser || !tripDetails) {
@@ -262,19 +277,32 @@ const Planning = () => {
       return;
     }
   
-    console.log('Token:', token);
-    console.log('Trip Details:', tripDetails);
-  
     try {
-      const response = await axios.post('https://cofuel-backend-63452a272e1b.herokuapp.com/api/trips', {
+      const originCoords = await geocodeAddress(tripDetails.origin);
+      const destinationCoords = await geocodeAddress(tripDetails.destination);
+      const waypointsCoords = await Promise.all(tripDetails.waypoints.map(async (wp) => {
+        const coords = await geocodeAddress(wp.location);
+        return { location: coords, stopover: true };
+      }));
+  
+      const tripData = {
         userId: storedUser.id,
         vehicleId: selectedVehicleId,
-        startLocation: tripDetails.origin,
-        endLocation: tripDetails.destination,
+        startLocation: {
+          latitude: originCoords.lat,
+          longitude: originCoords.lng
+        },
+        endLocation: {
+          latitude: destinationCoords.lat,
+          longitude: destinationCoords.lng
+        },
+        waypoints: waypointsCoords,
         startTime: tripDetails.startTime || new Date().toISOString(),
         endTime: tripDetails.endTime || new Date().toISOString(),
         cost: tripDetails.cost || 0
-      }, {
+      };
+  
+      const response = await axios.post('https://cofuel-backend-63452a272e1b.herokuapp.com/api/trips', tripData, {
         headers: { 
           'x-access-token': token,
           'Content-Type': 'application/json'
@@ -288,6 +316,8 @@ const Planning = () => {
     }
   };
   
+  
+
   return (
     <Wrapper>
       <ContentContainer>
@@ -330,7 +360,7 @@ const Planning = () => {
               </InputGroup>
             </InputWrapper>
             {vehicles.length > 0 ? (
-              <InputWrapper>
+                <InputWrapper>
                 <Label htmlFor="vehicle">Select Vehicle:</Label>
                 <select
                   id="vehicle"
@@ -339,12 +369,13 @@ const Planning = () => {
                 >
                   <option value="">Select a vehicle</option>
                   {vehicles.map(vehicle => (
-                    <option key={vehicle.id} value={vehicle.id}>
+                    <option key={vehicle.license_plate} value={vehicle.license_plate}>
                       {vehicle.make} {vehicle.model} ({vehicle.license_plate})
                     </option>
                   ))}
                 </select>
               </InputWrapper>
+            
             ) : (
               <Instructions>
                 No vehicles found. Please add a vehicle in your profile page.
@@ -404,7 +435,12 @@ const Planning = () => {
 
 export default Planning;
 
-// Styled-components for the layout
+const gradientBackground = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -412,7 +448,7 @@ const Wrapper = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #66ffcc, #ffcc66);
   background-size: 200% 200%;
-  animation: gradientBackground 10s ease infinite;
+  animation: ${gradientBackground} 10s ease infinite;
   padding: 20px;
   box-sizing: border-box;
 `;
