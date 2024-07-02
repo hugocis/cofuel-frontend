@@ -36,7 +36,7 @@ const Home = () => {
       <BackgroundImage />
       <Title>Where Every Trip Counts</Title>
       <Subtitle>Join us and start your journey today!</Subtitle>
-      <StyledLink to="/signup">
+      <StyledLink to="/register">
         <Button>
           <FaUserPlus />
           Create an account
